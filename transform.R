@@ -8,7 +8,6 @@ require("h2o")
 require("ggplot2")
 require("tidyverse")
 require("dlookr")
-install.packages("hmisc")
 require(Hmisc)
 
 #Step 1: Read in data 
