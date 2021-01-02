@@ -7,7 +7,6 @@ require("dplyr")
 require("h2o")
 require("ggplot2")
 require("tidyverse")
-require("gglorenz")
 
 #Step 1: Read in data 
 getwd()
@@ -103,6 +102,10 @@ ggplot(plot.Area,aes(x=Area,y=AverageClaimAmt)) +
 #bin characteristics - factors 
 df.model <- df.model %>% 
         mutate(DrivAgeBin = cut(DrivAge,breaks=c(0,20,30,60,100)))
+
+#bin characteristics based on non-sequential lists 
+
+
 
 #bin chars based on distributions - look into quantile type = 2 vs. others for different methods. use labels=c() for labels cuts explicitly
 ints <- quantile(df.model$DrivAge,probs = c(0,.25,.5,.75,1))
