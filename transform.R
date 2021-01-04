@@ -7,6 +7,7 @@ require("dplyr")
 require("h2o")
 require("ggplot2")
 require("tidyverse")
+library(rlang)
 
 #Step 1: Read in data 
 getwd()
@@ -91,13 +92,37 @@ plot.VehAge <- df.model %>%
 
 ggplot(plot.VehAge,aes(x=VehAge,y=AverageClaimAmt)) + 
         geom_bar(stat='identity')
+plot.VehAge
 
-plot.Area <- df.model %>% 
-        group_by(Area) %>%
-        summarise(AverageClaimAmt = mean(ClaimAmt),n()) 
+predictors[1]
+char_plot <- function(char,data=df.model) {
+        plot <- data %>% 
+                group_by({{char}}) %>%
+                summarise(AverageClaimAmt = mean(ClaimAmt),n()) 
+        print(ggplot(plot,aes(x={{char}},y=AverageClaimAmt)) + 
+                geom_bar(stat='identity'))
+}
 
-ggplot(plot.Area,aes(x=Area,y=AverageClaimAmt)) + 
-        geom_bar(stat='identity')
+predictors[1]
+
+
+char_plot(Area)
+as.name(predictors[2])
+
+char_plot(as.name(predictors[2]))
+char_plot(VehPower)
+
+for (i in seq_along(predictors)) {
+        char_plot((.data[[predictors[i]]]))
+}
+
+
+
+
+
+
+
+char_plot(Area)
 
 #bin characteristics - factors 
 df.model <- df.model %>% 
