@@ -48,7 +48,7 @@ Gini_rf
 
 #plot cumulative losses - note, we don't need to step by exposures on x axis because losses are already per exposure 
 
-ggplot(validation,aes(x=cum_exposure_pct,y=cum_loss/max(cum_loss))) + 
+ggplot(validation_gbm,aes(x=cum_exposure_pct,y=cum_loss/max(cum_loss))) + 
         geom_line() +
         geom_abline(slope=1,intercept=0)
 

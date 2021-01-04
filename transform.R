@@ -85,13 +85,16 @@ df.model <- df.model %>%
 #one-way plots
 
 #faster
+OneWay <- function(data=df.model,char) {
+        plot <- data %>% 
+                group_by_(char) %>%
+                summarise(AverageClaimAmt = mean(ClaimPE),n()) 
+}
+        ggplot(plot,aes(x=char,y=AverageClaimAmt)) + 
+                geom_bar(stat='identity')
 
-plot.VehAge <- df.model %>% 
-        group_by(VehAge) %>%
-        summarise(AverageClaimAmt = mean(ClaimPE),n()) 
-
-ggplot(plot.VehAge,aes(x=VehAge,y=AverageClaimAmt)) + 
-        geom_bar(stat='identity')
+df.model
+OneWay(Area)
 
 plot.Area <- df.model %>% 
         group_by(Area) %>%
