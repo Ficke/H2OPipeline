@@ -8,6 +8,8 @@ require("h2o")
 require("ggplot2")
 require("tidyverse")
 library(rlang)
+install.packages("rbin")
+library(rbin)
 
 #Step 1: Read in data 
 getwd()
@@ -77,9 +79,32 @@ str(df.model)
 df.model <- df.model %>% 
         mutate(across(c(VehPower,Area,VehBrand,BonusMalus,Region,VehGas),factor))
 
-#code target variables 
-# df.model <- df.model %>% 
-#         mutate(across(c(ClaimAmt),integer))
+#combine factor variables 
+rbin::rbinFactorAddin(data=df.model)
+
+G1 <- c("A","C","F")
+G2 <- c("B","D","E")
+
+out <- rbin_factor_combine(df.model, Area, G1, "Area1")
+out <- rbin_factor_combine(out, Area, G2, "Area2")
+table(out$Area)
+
+bins <- rbin_factor(out, ClaimPE, Area)
+plot(bins)
+class(bins)
+
+
+#or, try with dplyr 
+GroupOld <- levels(df.model$Area)
+GroupNew <- c(1,2,1,rep(2,2),1)
+GroupNew
+
+cbind(GroupOld,GroupNew)
+
+df.model <- df.model %>% 
+        mutate(AreaG = plyr::mapvalues(Area,from=levels,to=Groups))
+head(df.model)         
+        
 
 
 #one-way plots
