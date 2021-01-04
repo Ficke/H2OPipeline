@@ -83,20 +83,9 @@ df.model <- df.model %>%
 
 
 #one-way plots
-
-#faster
-<<<<<<< HEAD
-OneWay <- function(data=df.model,char) {
-        plot <- data %>% 
-                group_by_(char) %>%
-                summarise(AverageClaimAmt = mean(ClaimPE),n()) 
-}
-        ggplot(plot,aes(x=char,y=AverageClaimAmt)) + 
-                geom_bar(stat='identity')
-
 df.model
 OneWay(Area)
-=======
+
 
 plot.VehAge <- df.model %>% 
         group_by(VehAge) %>%
@@ -107,35 +96,20 @@ ggplot(plot.VehAge,aes(x=VehAge,y=AverageClaimAmt)) +
 plot.VehAge
 
 predictors[1]
+
+#plot all of the variables
 char_plot <- function(char,data=df.model) {
-        plot <- data %>% 
-                group_by({{char}}) %>%
-                summarise(AverageClaimAmt = mean(ClaimAmt),n()) 
-        print(ggplot(plot,aes(x={{char}},y=AverageClaimAmt)) + 
-                geom_bar(stat='identity'))
+        for (var in char) {
+                plot <- data %>% 
+                        group_by(.data[[var]]) %>%
+                        summarise(AverageClaimAmt = mean(ClaimAmt),n()) 
+                print(ggplot(plot,aes(x=.data[[var]],y=AverageClaimAmt)) + 
+                        geom_bar(stat='identity'))
+        }
 }
 
-predictors[1]
+char_plot(predictors)
 
-
-char_plot(Area)
-as.name(predictors[2])
-
-char_plot(as.name(predictors[2]))
-char_plot(VehPower)
-
-for (i in seq_along(predictors)) {
-        char_plot((.data[[predictors[i]]]))
-}
-
->>>>>>> e31ae88096622267f6fb144de80ea6f2178d392d
-
-
-
-
-
-
-char_plot(Area)
 
 #bin characteristics - factors 
 df.model <- df.model %>% 
