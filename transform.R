@@ -7,7 +7,7 @@ require("dplyr")
 require("h2o")
 require("ggplot2")
 require("tidyverse")
-require("gglorenz")
+library(rlang)
 
 #Step 1: Read in data 
 getwd()
@@ -85,6 +85,7 @@ df.model <- df.model %>%
 #one-way plots
 
 #faster
+<<<<<<< HEAD
 OneWay <- function(data=df.model,char) {
         plot <- data %>% 
                 group_by_(char) %>%
@@ -95,17 +96,54 @@ OneWay <- function(data=df.model,char) {
 
 df.model
 OneWay(Area)
+=======
 
-plot.Area <- df.model %>% 
-        group_by(Area) %>%
-        summarise(AverageClaimAmt = mean(ClaimAmt),n()) 
+plot.VehAge <- df.model %>% 
+        group_by(VehAge) %>%
+        summarise(AverageClaimAmt = mean(ClaimPE),n()) 
 
-ggplot(plot.Area,aes(x=Area,y=AverageClaimAmt)) + 
+ggplot(plot.VehAge,aes(x=VehAge,y=AverageClaimAmt)) + 
         geom_bar(stat='identity')
+plot.VehAge
+
+predictors[1]
+char_plot <- function(char,data=df.model) {
+        plot <- data %>% 
+                group_by({{char}}) %>%
+                summarise(AverageClaimAmt = mean(ClaimAmt),n()) 
+        print(ggplot(plot,aes(x={{char}},y=AverageClaimAmt)) + 
+                geom_bar(stat='identity'))
+}
+
+predictors[1]
+
+
+char_plot(Area)
+as.name(predictors[2])
+
+char_plot(as.name(predictors[2]))
+char_plot(VehPower)
+
+for (i in seq_along(predictors)) {
+        char_plot((.data[[predictors[i]]]))
+}
+
+>>>>>>> e31ae88096622267f6fb144de80ea6f2178d392d
+
+
+
+
+
+
+char_plot(Area)
 
 #bin characteristics - factors 
 df.model <- df.model %>% 
         mutate(DrivAgeBin = cut(DrivAge,breaks=c(0,20,30,60,100)))
+
+#bin characteristics based on non-sequential lists 
+
+
 
 #bin chars based on distributions - look into quantile type = 2 vs. others for different methods. use labels=c() for labels cuts explicitly
 ints <- quantile(df.model$DrivAge,probs = c(0,.25,.5,.75,1))
