@@ -3,13 +3,19 @@
 #We'll be using dplyr to start - then will port in data.table (either through dplyr package or directly)
 
 #step 0: load packages 
+library(data.table)
+setDTthreads(16)
+library(dtplyr)
+library(tidyverse)
+library(microbenchmark)
+
 require("dplyr")
+library("dtplyr")
 require("h2o")
 require("ggplot2")
 require("tidyverse")
 library(rlang)
-install.packages("rbin")
-library(rbin)
+
 
 #Step 1: Read in data 
 getwd()
@@ -29,50 +35,47 @@ if (!file.exists(sev_file)){
         download.file(link, sev_file, method="curl")
 }  
 
+df.freq <- fread(freq_file) %>% lazy_dt()
+df.sev <- fread(sev_file) %>% lazy_dt()
 
-df.freq <- read_csv(freq_file)
-df.sev <- read_csv(sev_file)
 #group severity by policy ID
-df.sev.g <- df.sev %>% 
+
+df.sev.g <- df.sev %>%
         group_by(IDpol) %>%
-        summarise(sum = sum(ClaimAmount))
-
-
-
+        summarise(ClaimAmt = sum(ClaimAmount))
+        
 #Join data 
 df.full <- left_join(df.freq,df.sev.g, by = "IDpol")
 
-rm(df.freq,df.sev.g,df.sev)
-
 #read features, rename & document their data types
-names(df.full)
-df.full <- df.full %>% 
-        rename(ClaimAmt = sum) %>%
-        replace_na(list(ClaimAmt = 0))
-
 #create target
 df.full <- df.full %>% 
+        mutate(ClaimAmt=replace_na(ClaimAmt,0)) %>%
         mutate(ClaimPE = ClaimAmt/Exposure)
-str(df.full)
-head(df.full)
+
+
 #Select Features to use 
 predictors <- c("Area","VehPower","VehAge","DrivAge","VehBrand","BonusMalus","VehGas","Region","Density")
 target <- c("ClaimPE","ClaimAmt")
 id <- c("IDpol","Exposure")
 fields <- c(id,target,predictors)
-fields
-names(df.full)
-df.model <- df.full %>%
-        dplyr::select(all_of(fields))
 
-#Remove other data from memory
+df.full[["vars"]]
+
+df.model <- df.full %>%
+        select(all_of(fields))
 
 #check for missing rows
+ 
 df.model %>%
-        summarise_all(list(sum=~sum(is.na(.))))
+        summarise_all(list(sum=~sum(is.na(.)))) %>%
+        as_tibble()
+
 
 #Which features should be categorical
-str(df.model)
+df.model %>%
+        summarise_all(~ class(.)) %>%
+        as_tibble()
 
 #code categorical variables 
 
@@ -80,7 +83,6 @@ df.model <- df.model %>%
         mutate(across(c(VehPower,Area,VehBrand,BonusMalus,Region,VehGas),factor))
 
 #combine factor variables 
-rbin::rbinFactorAddin(data=df.model)
 
 G1 <- c("A","C","F")
 G2 <- c("B","D","E")
@@ -95,6 +97,10 @@ class(bins)
 
 
 #or, try with dplyr 
+
+
+
+
 GroupOld <- levels(df.model$Area)
 GroupNew <- c(1,2,1,rep(2,2),1)
 GroupNew
